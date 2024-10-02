@@ -1,7 +1,6 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import datetime
-from sqlalchemy import ForeignKey
 
 # User model
 class User(SQLModel, table=True):
@@ -23,25 +22,32 @@ class Role(SQLModel, table=True):
 # UsersRoles model (linking table between Users and Roles)
 class UsersRoles(SQLModel, table=True):
     users_roles_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(ForeignKey("user.user_id"), nullable=False)
-    role_id: int = Field(ForeignKey("role.role_id"), nullable=False)
+    user_id: int = Field(foreign_key="user.user_id", nullable=False, index=True)
+    role_id: int = Field(foreign_key="role.role_id", nullable=False, index=True)
 
 # Permissions model (defines permissions for roles)
 class Permissions(SQLModel, table=True):
     permission_id: Optional[int] = Field(default=None, primary_key=True)
     permission_name: str = Field(max_length=255, nullable=False)
-    role_id: int = Field(ForeignKey("role.role_id"), nullable=False)
+    role_id: int = Field(foreign_key="role.role_id", nullable=False, index=True)
 
 # DietPlan model (linking user and dietitian for diet plan)
 class DietPlan(SQLModel, table=True):
-    __tablename__ = "dietplan"
-    __table_args__ = {"extend_existing": True}  # Allow redefinition if already exists
     diet_plan_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(ForeignKey("user.user_id"), nullable=False)
-    dietitian_user_id: int = Field(ForeignKey("user.user_id"), nullable=False)  # Links to the dietitian's user ID
+    user_id: int = Field(foreign_key="user.user_id", nullable=False, index=True)
+    dietitian_user_id: int = Field(foreign_key="user.user_id", nullable=False, index=True)  # Links to the dietitian's user ID
     proteins: float = Field(nullable=False)  # Amount of Proteins in grams
     carbs: float = Field(nullable=False)  # Amount of Carbohydrates in grams
     fats: float = Field(nullable=False)  # Amount of Fats in grams
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
     updated_at: Optional[datetime] = Field(default=None)
     plan_status: Optional[str] = Field(default="active", max_length=20)
+
+class Dietitian(SQLModel, table=True):
+    dietitian_id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.user_id", nullable=False)
+    name: str = Field(max_length=255, nullable=False)  # Added name
+    email: str = Field(max_length=255, nullable=False)  # Added email
+    qualification: str = Field(max_length=255, nullable=False)
+    experience_years: int = Field(nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now)

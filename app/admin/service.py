@@ -1,29 +1,39 @@
 from fastapi import HTTPException
 from app.admin.models import Dietitian
-from db import Session
+from db import Session, engine
 
-async def create_dietitian(dietitian: Dietitian):
-    async with Session() as session:
-        session.add(dietitian)
-        await session.commit()
-        return dietitian
-
-async def update_dietitian(dietitian_id: int, dietitian: Dietitian):
-    async with Session() as session:
-        db_dietitian = await session.get(Dietitian, dietitian_id)
+def create_dietitian(dietitian):
+    with Session(engine) as session:
+        new_dietitian = Dietitian(
+            name=dietitian.name,
+            email=dietitian.email,
+            qualification=dietitian.qualification,
+            experience_years=dietitian.experience_years,
+            user_id=dietitian.user_id,
+        )
+        session.add(new_dietitian)
+        session.commit()
+        session.refresh(new_dietitian)
+        return {"message": "Dietitian created successfully", "dietitian": new_dietitian}
+def update_dietitian(dietitian_id: int, dietitian: Dietitian):
+    with Session(engine) as session:
+        db_dietitian = session.get(Dietitian, dietitian_id)
         if not db_dietitian:
             raise HTTPException(status_code=404, detail="Dietitian not found")
-        db_dietitian.update(dietitian.dict())
-        await session.commit()
+        for key, value in dietitian.dict(exclude_unset=True).items():
+            setattr(db_dietitian, key, value)
+        session.commit()
         return db_dietitian
-
-async def delete_dietitian(dietitian_id: int):
-    async with Session() as session:
-        db_dietitian = await session.get(Dietitian, dietitian_id)
+def delete_dietitian(dietitian_id: int):
+    with Session(engine) as session:
+        db_dietitian = session.get(Dietitian, dietitian_id)
         if db_dietitian:
-            await session.delete(db_dietitian)
-            await session.commit()
+            session.delete(db_dietitian)
+            session.commit()
 
-async def get_dietitian(dietitian_id: int):
-    async with Session() as session:
-        return await session.get(Dietitian, dietitian_id)
+def get_dietitian(dietitian_id: int):
+    with Session(engine) as session:
+        dietitian = session.get(Dietitian, dietitian_id)
+        if not dietitian:
+            raise HTTPException(status_code=404, detail="Dietitian not found")
+        return dietitian
