@@ -29,7 +29,7 @@ def create_user(user: UserCreate):
     response = create_user_function(user)
     if "error" in response:
         raise HTTPException(status_code=400, detail=response["error"])
-    return {"message": "User created successfully!", "user": response}
+    return {"message": "User created successfully!"}
 
 @router.put("/{user_id}")
 def update_user(user_id: int, user: UserUpdate):

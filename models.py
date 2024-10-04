@@ -22,20 +22,20 @@ class Role(SQLModel, table=True):
 # UsersRoles model (linking table between Users and Roles)
 class UsersRoles(SQLModel, table=True):
     users_roles_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.user_id", nullable=False, index=True)
-    role_id: int = Field(foreign_key="role.role_id", nullable=False, index=True)
+    user_id: int = Field(foreign_key="user.user_id")
+    role_id: int = Field(foreign_key="role.role_id")
 
 # Permissions model (defines permissions for roles)
 class Permissions(SQLModel, table=True):
     permission_id: Optional[int] = Field(default=None, primary_key=True)
     permission_name: str = Field(max_length=255, nullable=False)
-    role_id: int = Field(foreign_key="role.role_id", nullable=False, index=True)
+    role_id: int = Field(foreign_key="role.role_id")
 
 # DietPlan model (linking user and dietitian for diet plan)
 class DietPlan(SQLModel, table=True):
     diet_plan_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.user_id", nullable=False, index=True)
-    dietitian_user_id: int = Field(foreign_key="user.user_id", nullable=False, index=True)  # Links to the dietitian's user ID
+    user_id: int = Field(foreign_key="user.user_id")
+    dietitian_user_id: int = Field(foreign_key="user.user_id")  # Links to the dietitian's user ID
     proteins: float = Field(nullable=False)  # Amount of Proteins in grams
     carbs: float = Field(nullable=False)  # Amount of Carbohydrates in grams
     fats: float = Field(nullable=False)  # Amount of Fats in grams
@@ -45,7 +45,7 @@ class DietPlan(SQLModel, table=True):
 
 class Dietitian(SQLModel, table=True):
     dietitian_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.user_id", nullable=False)
+    user_id: int = Field(foreign_key="user.user_id")
     name: str = Field(max_length=255, nullable=False)  # Added name
     email: str = Field(max_length=255, nullable=False)  # Added email
     qualification: str = Field(max_length=255, nullable=False)
